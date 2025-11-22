@@ -1,4 +1,5 @@
 #include "multithreading.h"
+
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define NUM_PIXELS(img) ((img)->w * (img)->h)
 #define PORTION_START_INDEX(p) ((p)->y * (p)->img->w + (p)->x)
@@ -8,6 +9,7 @@ void apply_blur_to_pixel(const blur_portion_t *portion, size_t target_index);
 
 int is_valid_neighbor(const blur_portion_t *portion, int neighbor_index,
 size_t target_index);
+
 /**
  * blur_portion - Applies Gaussian Blur to a specific portion of an image
  * @portion: Pointer to the data structure describing the portion of the image
@@ -30,6 +32,7 @@ void blur_portion(const blur_portion_t *portion)
 		}
 	}
 }
+
 /**
  * apply_blur_to_pixel - Applies Gaussian Blur to a single pixel
  * @portion: Pointer to the structure describing the image portion
@@ -70,6 +73,7 @@ void apply_blur_to_pixel(const blur_portion_t *portion, size_t target_index)
 	pixel->g = (int)(g / sum);
 	pixel->b = (int)(b / sum);
 }
+
 /**
  * is_valid_neighbor - Checks if a given pixel index is a valid neighbor
  * @portion: Pointer to the structure describing the image portion

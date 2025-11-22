@@ -1,9 +1,11 @@
 #include "multithreading.h"
+
 /*
  * Feel free to also copy this
  * No one cares about you so care about yourself
  * Author: Frank Onyema Orji
 */
+
 /**
  * exec_task - executes a task and saves the result
  * @task: task
@@ -19,6 +21,7 @@ void *exec_task(task_t *task)
 	pthread_mutex_unlock(&task->lock);
 	return (result);
 }
+
 /**
  * get_task_status - gets a task status; thread-safe
  * @task: task

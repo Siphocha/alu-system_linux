@@ -10,6 +10,7 @@
 #define PORTION_END_INDEX(p) (((p)->y + (p)->h) * (p)->img->w)
 #define PORTION_START_INDEX(p) ((p)->y * (p)->img->w + (p)->x)
 #define MAX_THREADS 16
+
 /**
  * blur_image - Applies Gaussian Blur to the entire image
  * @img_blur: Address where the blurred image will be stored
@@ -43,6 +44,7 @@ void blur_image(img_t *img_blur, img_t const *img, kernel_t const *kernel)
 	free(portions);
 	free(threads);
 }
+
 /**
  * divide_image_into_portions - Splits an image into portions for processing
  * @portions: Array of portions to fill
@@ -83,6 +85,7 @@ size_t divide_image_into_portions(blur_portion_t **portions, img_t *img_blur,
 
 	return num_portions;
 }
+
 /**
  * calculate_portion_grid_size - Determines the grid size based on the max thread count
  * @max_threads: Maximum number of threads allowed
@@ -97,6 +100,7 @@ size_t calculate_portion_grid_size(size_t max_threads)
 
 	return n - 1;
 }
+
 /**
  * initialize_portion - Initializes a portion of the image
  * @portion: Pointer to the portion to initialize

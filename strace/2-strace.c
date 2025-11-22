@@ -1,47 +1,49 @@
 #include "syscalls.h"
 
 /**
- * main - traces a process and prints system call numbers as they're called
- * @argc: argument count
- * @argv: argument array
- * @envp: environment parameters
- * Return: 0 on success | 1 on failure (not enough arguments)
- * author: Frank Onyema Orji
- **/
-int main(int argc, char *argv[], char *envp[])
+ * main - entry
+ * @argc: args count
+ * @argv: args
+ * Return: exit or fail
+ */
+int main(int argc, char **argv)
 {
-	int skip, status;
-	struct user_regs_struct regs;
-	pid_t pid;
+	pid_t child_pid;
+	int status, syscall, flip, count = 0;
+	struct user_regs_struct u_in;
 
-	if (argc < 2)
-	{
-		fprintf(stderr, "Usage: %s <full_path> [path_args]\n", argv[0]);
-		return (1);
-	}
-	setbuf(stdout, NULL);
-	pid = fork();
+	setbuf(stdout, 0);
+	child_pid = fork();
 
-	if (pid == 0)
+	if (child_pid < 0)
+		exit(-1);
+	else if (child_pid == 0)
 	{
-		printf("execve");
-		ptrace(PTRACE_TRACEME, pid, NULL, NULL);
-		execve(argv[1], argv + 1, envp);
+		ptrace(PTRACE_TRACEME, 0, 0, 0);
+		raise(SIGSTOP);
+		argv[argc] = NULL;
+		execvp(argv[1], argv + 1);
+
 	}
 	else
 	{
-		for (status = 1, skip = 0; !WIFEXITED(status); skip ^= 1)
+		wait(&status);
+		ptrace(PTRACE_SYSCALL, child_pid, 0, 0);
+		for (flip = 0; !WIFEXITED(status); flip ^= 1)
 		{
-			ptrace(PT_SYSCALL, pid, NULL, NULL);
+			ptrace(PTRACE_GETREGS, child_pid, 0, &u_in);
+			if (!flip && count)
+			{
+				syscall = u_in.orig_rax;
+				printf("%s", syscalls_64_g[syscall].name);
+			}
+			if (flip && (long)u_in.rax != -38 && count)
+				printf(" = %s%lx\n", u_in.rax ? "0x" : "", (long)u_in.rax);
+			ptrace(PTRACE_SYSCALL, child_pid, 0, 0);
 			wait(&status);
-			ptrace(PT_GETREGS, pid, NULL, &regs);
-			if (skip)
-				printf("\n%s", syscalls_64_g[regs.orig_rax].name);
-			else if (WIFEXITED(status))
-				printf(" = ?\n");
-			else
-				printf(" = %#lx", (size_t)regs.rax);
+			count = 1;
 		}
 	}
+	printf(" = ?\n");
 	return (0);
 }

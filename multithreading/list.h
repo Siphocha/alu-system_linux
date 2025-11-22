@@ -1,6 +1,8 @@
 #ifndef LIST_H
 #define LIST_H
+
 #include <stddef.h>
+
 /**
  * struct node_s - Node structure
  *
@@ -14,6 +16,7 @@ typedef struct node_s
 	struct node_s	*prev;
 	struct node_s	*next;
 } node_t;
+
 /**
  * struct list_s - List structure
  *

@@ -1,94 +1,51 @@
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <asm-generic/socket.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define PORT 12345
 
-int setup_server_socket(void);
-
 /**
-* main - Opens a socket and listens on a port 12345
-* Accepts a client connection
-* Return: 0 on success, 1 on failure if binding fails
-*/
+ * main - opens an IPv4/TCP socket, and listens to traffic on port 12345
+ * Return: 0 on success, 1 on failure
+ */
 int main(void)
 {
-	struct sockaddr_in client_addr;
-	socklen_t client_addr_len = sizeof(client_addr);
-	int client_fd;
+	int sockfd, newsockfd;
+	socklen_t clilen;
+	struct sockaddr_in serv_addr, cli_addr;
 
-	int server_fd = setup_server_socket();
+	/* Create socket */
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0)
+		exit(1);
 
-	if (server_fd == -1)
-	{
-		return (1);
-	}
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons(PORT);
 
-	client_fd = accept(server_fd,
-	(struct sockaddr *)&client_addr, &client_addr_len);
+	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+		exit(1);
 
-	if (client_fd == -1)
-	{
-		perror("accept failed");
-		close(server_fd);
-		return (1);
-	}
 
-	printf("Client connected: %s\n", inet_ntoa(client_addr.sin_addr));
+	listen(sockfd, 5);
+	printf("Server listening on port %d\n", PORT);
 
-	close(client_fd);
-	close(server_fd);
+	clilen = sizeof(cli_addr);
+
+	/* Accept actual connection from the client */
+	newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+	if (newsockfd < 0)
+		exit(1);
+
+	printf("Client connected: %s\n", inet_ntoa(cli_addr.sin_addr));
+
+	close(newsockfd);
+	close(sockfd);
 
 	return (0);
-}
-
-/**
-* setup_server_socket - Set up a server socket and start listening
-*
-* This function creates a server socket, binds it to the specified port,
-* and starts listening for incoming connections.
-*
-* Return: The file descriptor of the server, or -1 on failure.
-*/
-int setup_server_socket(void)
-{
-	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	struct sockaddr_in addr;
-	int enable = 1;
-
-	if (server_fd == -1)
-	{
-		perror("socket failed");
-		return (-1);
-	}
-
-
-	if (setsockopt(server_fd, SOL_SOCKET,
-	SO_REUSEADDR | SO_REUSEPORT, &enable, sizeof(int)) < 0) {
-		perror("SO_REUSEADDR | SO_REUSEPORT failed");
-	}
-
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(PORT);
-	addr.sin_addr.s_addr = INADDR_ANY;
-
-	if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
-	{
-		perror("bind failed");
-		close(server_fd);
-		return (-1);
-	}
-
-	if (listen(server_fd, 10) == -1)
-	{
-		perror("listen failed");
-		close(server_fd);
-		return (-1);
-	}
-
-	return (server_fd);
 }

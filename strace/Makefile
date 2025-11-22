@@ -1,19 +1,26 @@
-CC       = gcc
-CFLAGS   = -g3 -Wall -Werror -Wextra -pedantic
-FILENAME = strace
+CC = gcc
+CFLAGS = -Wall -Werror -Wextra -pedantic -std=gnu89 -g3
 
-0_SRC = 0-$(FILENAME).c
-$(FILENAME)_0: $(0_SRC:.c=.o)
-	$(CC) $(CFLAGS) $(0_SRC) -o $(FILENAME)_0
+SRC = $(wildcard *.c)
+OBJS = $(patsubst %.c, %.o, $(SRC))
+0 = $(patsubst %.c, %.o, $(wildcard 0-*.c))
+1 = $(patsubst %.c, %.o, $(wildcard 1-*.c))
+2 = $(patsubst %.c, %.o, $(wildcard 2-*.c))
+3 = $(patsubst %.c, %.o, $(wildcard 3-*.c))
 
-1_SRC = 1-$(FILENAME).c
-$(FILENAME)_1: $(1_SRC:.c=.o)
-	$(CC) $(CFLAGS) $(1_SRC) -o $(FILENAME)_1
+.PHONY: strace_0 strace_1 strace_2 strace_3 clean
 
-2_SRC = 2-$(FILENAME).c
-$(FILENAME)_2: $(2_SRC:.c=.o)
-	$(CC) $(CFLAGS) $(2_SRC) -o $(FILENAME)_2
+strace_0: $(0)
+	$(CC) $(CFLAGS) $(0) -o strace_0
 
-3_SRC = 3-$(FILENAME).c
-$(FILENAME)_3: $(3_SRC:.c=.o)
-	$(CC) $(CFLAGS) $(3_SRC) -o $(FILENAME)_3
+strace_1: $(1)
+	$(CC) $(CFLAGS) $(1) -o strace_1
+
+strace_2: $(2)
+	$(CC) $(CFLAGS) $(2) -o strace_2
+
+strace_3: $(3)
+	$(CC) $(CFLAGS) $(3) -o strace_3
+
+clean:
+	rm -f $(OBJS) strace_*

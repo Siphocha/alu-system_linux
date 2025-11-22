@@ -8,6 +8,7 @@
 
 pthread_mutex_t tprintf_mutex;
 pthread_mutex_t tasks_mutex;
+
 /**
 * struct pixel_s - RGB pixel
 *
@@ -22,6 +23,7 @@ typedef struct pixel_s
 	uint8_t g;
 	uint8_t b;
 } pixel_t;
+
 /**
 * struct img_s - Image
 *
@@ -35,6 +37,7 @@ typedef struct img_s
 	size_t h;
 	pixel_t *pixels;
 } img_t;
+
 /**
 * struct kernel_s - Convolution kernel
 *
@@ -47,6 +50,7 @@ typedef struct kernel_s
 	float **matrix;
 
 } kernel_t;
+
 /**
 * struct blur_portion_s - Information needed to blur a portion of an image
 *
@@ -72,6 +76,7 @@ typedef struct blur_portion_s
 } blur_portion_t;
 
 typedef void *(*task_entry_t)(void *);
+
 /**
 * enum task_status_e - Task status
 *
@@ -88,6 +93,7 @@ typedef enum task_status_e
 	FAILURE,
 	TASK_STATUS_MAX /* Number of task statuses */
 } task_status_t;
+
 /**
 * struct task_s - Executable task structure
 *
@@ -109,6 +115,7 @@ typedef struct task_s
 	unsigned int id;
 
 } task_t;
+
 /*Functions prototypes*/
 void *thread_entry(void *arg);
 int tprintf(char const *format, ...);
